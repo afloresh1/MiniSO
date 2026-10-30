@@ -9,7 +9,7 @@ using namespace std;
 
 int main() {
     int opcion;
-
+ 
     do {
         cout << "                    ================================                  ";
 	cout << endl;
@@ -23,7 +23,7 @@ int main() {
         cout << "0. Salir\n";
         cout << "Seleccione una opcion: ";
 
-
+	cin>>opcion;
         switch (opcion) {
             case 1:
                 moduloProcesos();
