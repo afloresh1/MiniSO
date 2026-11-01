@@ -1,0 +1,3 @@
+=== PRUEBA DEL MODULO DE CONCURRENCIA ===
+Ejecutando modulo de concurrencia...
+=== FIN DE LA PRUEBA ===
