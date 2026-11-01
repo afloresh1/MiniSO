@@ -1,0 +1,12 @@
+=== PRUEBA DEL MODULO DE CONCURRENCIA ===
+
+===== MODULO II: HILOS Y CONCURRENCIA =====
+1. Ejecutar productor-consumidor
+0. Volver al menu principal
+Seleccione una opcion: Productor-consumidor pendiente de implementacion.
+
+===== MODULO II: HILOS Y CONCURRENCIA =====
+1. Ejecutar productor-consumidor
+0. Volver al menu principal
+Seleccione una opcion: Volviendo al menu principal...
+=== FIN DE LA PRUEBA ===
