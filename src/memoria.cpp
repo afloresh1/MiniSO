@@ -2,6 +2,16 @@
 #include <iostream>
 #include <string>
 
+#include <cstdlib>
+
+void limpiarPantalla() {
+#ifdef _WIN32
+    system("cls");  
+#else
+    system("clear");
+#endif
+}
+
 using namespace std;
 int CAPACIDAD;
 
@@ -125,7 +135,112 @@ void mostrar_huecos(Ocupado ocupados[], int n) {
 
 
 
-void moduloMemoria() {
-    cout << "Ejecutando modulo de memoria..." << endl;
+static void subMenuParticionamiento() {
+
+
+    limpiarPantalla();
+    cout << "\n--- CONFIGURACIÓN DE PARTICIONAMIENTO ---\n";
+    cout << "Ingrese la memoria total del sistema (ej. 512): ";
+    cin >> CAPACIDAD;
+
+    Ocupado ocupados[10];
+    for (int i = 0; i < 10; ++i) {
+        ocupados[i].nombre = "";
+        ocupados[i].inicio = 0;
+        ocupados[i].tamano = 0;
+        ocupados[i].esta_ocupado = false;
+    }
+
+    int opcion;
+    do {
+        cout << "\n=== PARTICIONAMIENTO DE MEMORIA (FIRST-FIT) ===\n";
+        cout << "1. Solicitar espacio (Asignar Proceso)\n";
+        cout << "2. Liberar espacio (Eliminar Proceso)\n";
+        cout << "3. Mostrar estado de los bloques libres\n";
+        cout << "4. Cargar simulación automática (Escenarios 1 y 2)\n";
+        cout << "0. Volver al menú de Gestión de Memoria\n";
+        cout << "Seleccione una opción: ";
+        cin >> opcion;
+
+	limpiarPantalla();
+
+        switch (opcion) {
+            case 1: {
+                string nom;
+                int tam;
+                cout << "Nombre del proceso: ";
+                cin >> nom;
+                cout << "Tamaño requerido (MiB): ";
+                cin >> tam;
+                asignar_first_fit(ocupados, 10, nom, tam);
+                break;
+            }
+            case 2: {
+                string nom;
+                cout << "Nombre del proceso a liberar: ";
+                cin >> nom;
+                liberar_proceso(ocupados, 10, nom);
+                break;
+            }
+            case 3:
+                mostrar_huecos(ocupados, 10);
+		cout << "\nPresione ENTER para continuar...";
+		cin.ignore();
+		cin.get();
+
+
+                break;
+            case 4:
+                cout << "\n=== ESCENARIO 1: Fragmentacion Externa (Proceso Grande) ===\n";
+                asignar_first_fit(ocupados, 10, "A", 100);
+                asignar_first_fit(ocupados, 10, "B", 150);
+                asignar_first_fit(ocupados, 10, "C", 100);
+                asignar_first_fit(ocupados, 10, "D", 100);
+
+                liberar_proceso(ocupados, 10, "B");
+                liberar_proceso(ocupados, 10, "D");
+                mostrar_huecos(ocupados, 10);
+
+                asignar_first_fit(ocupados, 10, "E", 200);
+
+                cout << "\n=== ESCENARIO 2: Reutilizacion Exitosa de Espacios ===\n";
+                asignar_first_fit(ocupados, 10, "F", 120);
+                mostrar_huecos(ocupados, 10);
+                break;
+            case 0:
+                cout << "Regresando al menú de Memoria...\n";
+                break;
+            default:
+                cout << "Opción no válida.\n";
+        }
+    } while (opcion != 0);
 }
 
+void moduloMemoria() {
+    int opcion;
+    do {
+	limpiarPantalla();
+        cout << "\n=========================================\n";
+        cout << "       GESTIÓN DE MEMORIA (MINISO)        \n";
+        cout << "=========================================\n";
+        cout << "1. Particionamiento de memoria (First-Fit)\n";
+        cout << "2. Paginación\n";
+        cout << "0. Volver al menú principal\n";
+        cout << "Seleccione una opción: ";
+        cin >> opcion;
+
+        switch (opcion) {
+            case 1:
+                subMenuParticionamiento();
+                break;
+            case 2:
+                cout << "\n[!] Submódulo de Paginaciòn...\n";
+                break;
+            case 0:
+                cout << "Saliendo del Módulo de Memoria...\n";
+                break;
+            default:
+                cout << "Opción no válida.\n";
+        }
+    } while (opcion != 0);
+}
