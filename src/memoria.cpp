@@ -237,6 +237,21 @@ static void subMenuParticionamiento() {
     } while (opcion != 0);
 }
 
+
+bool traducir_paginacion(int direccion, int tam_proceso, const int marcos[], ResultadoTraduccion &resultado) {
+    if (direccion < 0 || direccion >= tam_proceso) {
+        return false; // Dirección fuera del espacio de direcciones del proceso
+    }
+    resultado.pagina = direccion / TAM_PAGINA;
+    resultado.desplazamiento = direccion % TAM_PAGINA;
+    resultado.marco = marcos[resultado.pagina];
+    resultado.direccion_fisica = (resultado.marco * TAM_PAGINA) + resultado.desplazamiento;
+    return true;
+}
+
+
+
+
 void moduloMemoria() {
     int opcion;
     do {
