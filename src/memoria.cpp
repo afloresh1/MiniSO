@@ -435,7 +435,7 @@ void moduloMemoria() {
                 subMenuParticionamiento();
                 break;
             case 2:
-                cout << "\n[!] Submódulo de Paginaciòn...\n";
+               subMenuPaginacion();
                 break;
             case 0:
                 cout << "Saliendo del Módulo de Memoria...\n";
