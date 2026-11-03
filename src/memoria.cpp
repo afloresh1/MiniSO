@@ -25,7 +25,6 @@ bool asignar_first_fit(Ocupado ocupados[], int n, string nombre, int tam) {
                 ocupados[j] = ocupados[j - 1];
             }
 
-
             ocupados[i].nombre = nombre;
             ocupados[i].inicio = cursor;
             ocupados[i].tamano = tam;
@@ -51,6 +50,7 @@ bool asignar_first_fit(Ocupado ocupados[], int n, string nombre, int tam) {
         }
     }
 
+//IDENTIFICACION DE FRAGMENTACIÒN EXTERNA
 
     int libre_total = 0;
     int temp_cursor = 0;
@@ -99,7 +99,33 @@ void liberar_proceso(Ocupado ocupados[], int n, string nom) {
 }
 
 
+void mostrar_huecos(Ocupado ocupados[], int n) {
+    int cursor = 0, libre_total = 0;
+    cout << "Huecos libres actuales: [";
+    bool primero = true;
+
+    for (int i = 0; i < n; ++i) {
+        if (!ocupados[i].esta_ocupado) continue;
+        if (ocupados[i].inicio > cursor) {
+            int tam_hueco = ocupados[i].inicio - cursor;
+            libre_total += tam_hueco;
+            cout << (primero ? "" : ", ") << "(" << cursor << ", " << tam_hueco << ")";
+            primero = false;
+        }
+        cursor = ocupados[i].inicio + ocupados[i].tamano;
+    }
+    if (cursor < CAPACIDAD) {
+        int tam_hueco = CAPACIDAD - cursor;
+        libre_total += tam_hueco;
+        cout << (primero ? "" : ", ") << "(" << cursor << ", " << tam_hueco << ")";
+    }
+    cout << "]\nMemoria libre total: " << libre_total << " MiB\n\n";
+}
+
+
+
 
 void moduloMemoria() {
     cout << "Ejecutando modulo de memoria..." << endl;
 }
+
