@@ -4,54 +4,65 @@
 #include <mutex>
 #include <condition_variable>
 #include <queue>
+#include <vector>
 #include <chrono>
 using namespace std;
 
 queue<int> buffer;
 mutex mtx;
 condition_variable noLleno, noVacio;
-int capacidad = 3;
-int siguiente = 0;
-int producidos = 0, consumidos = 0;
+int capacidad, totalElementos, totalProductores;
+int producidos, consumidos, productoresFinalizados;
 
 void productor(int id) {
-    for (int i = 0; i < 3; i++) {
+    while (true) {
         this_thread::sleep_for(chrono::milliseconds(100));
-
         unique_lock<mutex> bloqueo(mtx);
 
-        if (buffer.size() == capacidad)
+        if (producidos < totalElementos && buffer.size() == capacidad)
             cout << "[P" << id << "] Buffer lleno. Esperando...\n";
 
         noLleno.wait(bloqueo, [] {
-            return buffer.size() < capacidad;
+            return buffer.size() < capacidad || producidos == totalElementos;
         });
 
-        int elemento = ++siguiente;
+        if (producidos == totalElementos) {
+            productoresFinalizados++;
+            cout << "[P" << id << "] Finalizo.\n";
+            bloqueo.unlock();
+            noVacio.notify_all();
+            noLleno.notify_all();
+            return;
+        }
+
+        int elemento = ++producidos;
         buffer.push(elemento);
-        producidos++;
 
         cout << "[P" << id << "] Produjo " << elemento
              << " | Buffer: " << buffer.size() << "/" << capacidad << endl;
 
+        bool ultimo = producidos == totalElementos;
         bloqueo.unlock();
         noVacio.notify_one();
+        if (ultimo) noLleno.notify_all();
     }
-
-    lock_guard<mutex> bloqueo(mtx);
-    cout << "[P" << id << "] Finalizo.\n";
 }
 
 void consumidor(int id) {
-    for (int i = 0; i < 3; i++) {
+    while (true) {
         unique_lock<mutex> bloqueo(mtx);
 
-        if (buffer.empty())
+        if (buffer.empty() && productoresFinalizados < totalProductores)
             cout << "[C" << id << "] Buffer vacio. Esperando...\n";
 
         noVacio.wait(bloqueo, [] {
-            return !buffer.empty();
+            return !buffer.empty() || productoresFinalizados == totalProductores;
         });
+
+        if (buffer.empty()) {
+            cout << "[C" << id << "] Finalizo.\n";
+            return;
+        }
 
         int elemento = buffer.front();
         buffer.pop();
@@ -65,36 +76,50 @@ void consumidor(int id) {
 
         this_thread::sleep_for(chrono::milliseconds(200));
     }
-
-    lock_guard<mutex> bloqueo(mtx);
-    cout << "[C" << id << "] Finalizo.\n";
 }
 
 void ejecutarHilos() {
-    {
-        lock_guard<mutex> bloqueo(mtx);
-        while (!buffer.empty()) buffer.pop();
-        siguiente = 0;
-        producidos = 0;
-        consumidos = 0;
+    int numProductores, numConsumidores;
+
+    cout << "\n============ CONFIGURACION ==============\n";
+    cout << "Numero de productores (minimo 2): ";
+    cin >> numProductores;
+    cout << "Numero de consumidores (minimo 2): ";
+    cin >> numConsumidores;
+    cout << "Capacidad del buffer: ";
+    cin >> capacidad;
+    cout << "Cantidad total de elementos: ";
+    cin >> totalElementos;
+
+    if (numProductores < 2 || numConsumidores < 2 ||
+        capacidad < 1 || totalElementos < 1) {
+        cout << "Parametros no validos.\n";
+        return;
     }
 
-    cout << "\n======= PRODUCTOR-CONSUMIDOR ========\n";
-    cout << "Productores: 2\n";
-    cout << "Consumidores: 2\n";
-    cout << "Capacidad del buffer: " << capacidad << endl;
+    while (!buffer.empty()) buffer.pop();
+    producidos = 0;
+    consumidos = 0;
+    productoresFinalizados = 0;
+    totalProductores = numProductores;
 
-    thread p1(productor, 1);
-    thread p2(productor, 2);
-    thread c1(consumidor, 1);
-    thread c2(consumidor, 2);
+    cout << "\n=============== PRODUCTOR-CONSUMIDOR ===============\n";
+    cout << "Iniciando hilos...\n";
 
-    p1.join();
-    p2.join();
-    c1.join();
-    c2.join();
+    vector<thread> hilos;
+
+    for (int i = 1; i <= numProductores; i++)
+        hilos.emplace_back(productor, i);
+
+    for (int i = 1; i <= numConsumidores; i++)
+        hilos.emplace_back(consumidor, i);
+
+    for (auto &hilo : hilos)
+        hilo.join();
 
     cout << "\n============= RESULTADOS =============\n";
+    cout << "Productores: " << numProductores << endl;
+    cout << "Consumidores: " << numConsumidores << endl;
     cout << "Producidos: " << producidos << endl;
     cout << "Consumidos: " << consumidos << endl;
     cout << "Pendientes: " << buffer.size() << endl;
@@ -105,7 +130,7 @@ void moduloConcurrencia() {
     int opcion;
 
     do {
-        cout << "\n===== MODULO II: HILOS Y CONCURRENCIA =====\n";
+        cout << "\n======== MODULO II: HILOS Y CONCURRENCIA ========\n";
         cout << "1. Ejecutar productor-consumidor\n";
         cout << "0. Volver al menu principal\n";
         cout << "Seleccione una opcion: ";
