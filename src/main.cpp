@@ -9,21 +9,21 @@ using namespace std;
 
 int main() {
     int opcion;
- 
+
     do {
-        cout << "                    ================================                  ";
-	cout << endl;
-        cout << "                                 MINISO";
-	cout << endl;
-        cout << "                    ===============================";
-	cout << endl;
+        cout << "                    ================================                  \n";
+        cout << "                                 MINISO                               \n";
+        cout << "                    ===============================                   \n";
         cout << "1. Gestion de procesos\n";
         cout << "2. Gestion de hilos y concurrencia\n";
         cout << "3. Gestion de memoria\n";
         cout << "0. Salir\n";
         cout << "Seleccione una opcion: ";
 
-	cin>>opcion;
+        cin >> opcion;
+
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
         switch (opcion) {
             case 1:
                 moduloProcesos();
