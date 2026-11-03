@@ -1,0 +1,39 @@
+                    ================================                  
+                                 MINISO
+                    ===============================
+1. Gestion de procesos
+2. Gestion de hilos y concurrencia
+3. Gestion de memoria
+0. Salir
+Seleccione una opcion: mar 03 nov 2026 00:14:23 -05
+total 28
+-rw-rw-r-- 1 unjbg unjbg     0 Nov  2 22:38 Makefile
+-rw-rw-r-- 1 unjbg unjbg     0 Nov  2 22:38 README.md
+-rwxrwxr-x 1 unjbg unjbg 17048 Nov  2 23:47 miniSO
+drwxrwxr-x 2 unjbg unjbg  4096 Nov  3 00:13 pruebas
+drwxrwxr-x 2 unjbg unjbg  4096 Nov  3 00:12 src
+
+=========================================
+     MÓDULO I: GESTIÓN DE PROCESOS      
+=========================================
+[PADRE] PID del proceso principal: 15974
+[PADRE] PPID (PID de la terminal/shell): 5185
+
+
+[PADRE] Hijos creados -> Hijo 1 (PID: 15981) | Hijo 2 (PID: 15982)
+[PADRE] Esperando finalización de los procesos hijos con waitpid()...
+
+
+-----------------------------------------
+[PADRE] Hijo 1 finalizó correctamente (Código: 0)
+[PADRE] Hijo 2 finalizó correctamente (Código: 0)
+=========================================
+
+                    ================================                  
+                                 MINISO
+                    ===============================
+1. Gestion de procesos
+2. Gestion de hilos y concurrencia
+3. Gestion de memoria
+0. Salir
+Seleccione una opcion: Saliendo de MiniSO...
