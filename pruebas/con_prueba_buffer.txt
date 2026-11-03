@@ -1,0 +1,40 @@
+=== PRUEBA DEL MODULO DE CONCURRENCIA ===
+
+===== MODULO II: HILOS Y CONCURRENCIA =====
+1. Ejecutar productor-consumidor
+0. Volver al menu principal
+Seleccione una opcion: 
+======= PRODUCTOR-CONSUMIDOR ========
+Productores: 2
+Consumidores: 2
+Capacidad del buffer: 3
+[C1] Buffer vacio. Esperando...
+[C2] Buffer vacio. Esperando...
+[P1] Produjo 1 | Buffer: 1/3
+[C1] Retiro 1 | Buffer: 0/3
+[P2] Produjo 2 | Buffer: 1/3
+[C2] Retiro 2 | Buffer: 0/3
+[P2] Produjo 3 | Buffer: 1/3
+[P1] Produjo 4 | Buffer: 2/3
+[C1] Retiro 3 | Buffer: 1/3
+[C2] Retiro 4 | Buffer: 0/3
+[P2] Produjo 5 | Buffer: 1/3
+[P2] Finalizo.
+[P1] Produjo 6 | Buffer: 2/3
+[P1] Finalizo.
+[C1] Retiro 5 | Buffer: 1/3
+[C2] Retiro 6 | Buffer: 0/3
+[C1] Finalizo.
+[C2] Finalizo.
+
+============= RESULTADOS =============
+Producidos: 6
+Consumidos: 6
+Pendientes: 0
+Ejecucion finalizada.
+
+===== MODULO II: HILOS Y CONCURRENCIA =====
+1. Ejecutar productor-consumidor
+0. Volver al menu principal
+Seleccione una opcion: Volviendo al menu principal...
+=== FIN DE LA PRUEBA ===
