@@ -1,0 +1,26 @@
+=== PRUEBA DEL MODULO DE CONCURRENCIA ===
+
+===== MODULO II: HILOS Y CONCURRENCIA =====
+1. Ejecutar productor-consumidor
+0. Volver al menu principal
+Seleccione una opcion: 
+Iniciando hilos...
+[Productor 1] Ejecucion 1
+[Productor 1] Ejecucion 2
+[Productor 1] Ejecucion 3
+[Productor 2] Ejecucion 1
+[Productor 2] Ejecucion 2
+[Productor 2] Ejecucion 3
+[Consumidor 1] Ejecucion 1
+[Consumidor 1] Ejecucion 2
+[Consumidor 1] Ejecucion 3
+[Consumidor 2] Ejecucion 1
+[Consumidor 2] Ejecucion 2
+[Consumidor 2] Ejecucion 3
+Todos los hilos finalizaron.
+
+===== MODULO II: HILOS Y CONCURRENCIA =====
+1. Ejecutar productor-consumidor
+0. Volver al menu principal
+Seleccione una opcion: Volviendo al menu principal...
+=== FIN DE LA PRUEBA ===

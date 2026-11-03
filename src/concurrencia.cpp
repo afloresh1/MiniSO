@@ -1,6 +1,40 @@
 #include "concurrencia.h"
 #include <iostream>
+#include <thread>
+#include <mutex>
 using namespace std;
+
+mutex mutexSalida;
+
+void productor(int id) {
+    for (int i = 1; i <= 3; i++) {
+        lock_guard<mutex> bloqueo(mutexSalida);
+        cout << "[Productor " << id << "] Ejecucion " << i << endl;
+    }
+}
+
+void consumidor(int id) {
+    for (int i = 1; i <= 3; i++) {
+        lock_guard<mutex> bloqueo(mutexSalida);
+        cout << "[Consumidor " << id << "] Ejecucion " << i << endl;
+    }
+}
+
+void ejecutarHilos() {
+    cout << "\nIniciando hilos...\n";
+
+    thread p1(productor, 1);
+    thread p2(productor, 2);
+    thread c1(consumidor, 1);
+    thread c2(consumidor, 2);
+
+    p1.join();
+    p2.join();
+    c1.join();
+    c2.join();
+
+    cout << "Todos los hilos finalizaron.\n";
+}
 
 void moduloConcurrencia() {
     int opcion;
@@ -14,7 +48,7 @@ void moduloConcurrencia() {
 
         switch (opcion) {
             case 1:
-                cout << "Productor-consumidor pendiente de implementacion.\n";
+                ejecutarHilos();
                 break;
             case 0:
                 cout << "Volviendo al menu principal...\n";
