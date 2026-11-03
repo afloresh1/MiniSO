@@ -13,7 +13,15 @@ void limpiarPantalla() {
 }
 
 using namespace std;
+
+//Variable global para la simulaciòn de Particionamiento
 int CAPACIDAD;
+
+// Variables globales para la simulación de Paginación
+int TAM_PAGINA = 4096; // Tamaño por defecto: 4 KiB (4096 bytes)
+int NUM_MARCOS = 12;   // 12 marcos en memoria física simulada
+
+
 
 struct Ocupado {
     string nombre;
@@ -21,6 +29,19 @@ struct Ocupado {
     int tamano;
     bool esta_ocupado;
 };
+
+
+// Estructura para almacenar los resultados de la traducción lógica -> física
+struct ResultadoTraduccion {
+    int pagina;
+    int desplazamiento;
+    int marco;
+    int direccion_fisica;
+};
+
+
+
+
 
 bool asignar_first_fit(Ocupado ocupados[], int n, string nombre, int tam) {
     int cursor = 0;
