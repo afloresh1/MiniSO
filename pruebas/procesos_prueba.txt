@@ -5,22 +5,22 @@
 2. Gestion de hilos y concurrencia
 3. Gestion de memoria
 0. Salir
-Seleccione una opcion: mié 04 nov 2026 06:46:05 -05
+Seleccione una opcion: mié 04 nov 2026 07:11:22 -05
 total 144
 -rw-rw-r-- 1 unjbg unjbg    517 Nov  4 06:44 Makefile
 -rw-rw-r-- 1 unjbg unjbg   4919 Nov  4 06:44 README.md
 -rwxrwxr-x 1 unjbg unjbg 124440 Nov  4 06:44 miniSO
 drwxrwxr-x 3 unjbg unjbg   4096 Nov  4 06:44 pruebas
-drwxrwxr-x 2 unjbg unjbg   4096 Nov  4 06:44 src
+drwxrwxr-x 2 unjbg unjbg   4096 Nov  4 07:00 src
 
 =========================================
      MÓDULO I: GESTIÓN DE PROCESOS      
 =========================================
-[PADRE] PID del proceso principal: 5583
+[PADRE] PID del proceso principal: 7333
 [PADRE] PPID (PID de la terminal/shell): 4666
 
 
-[PADRE] Hijos creados -> Hijo 1 (PID: 5592) | Hijo 2 (PID: 5593)
+[PADRE] Hijos creados -> Hijo 1 (PID: 7341) | Hijo 2 (PID: 7342)
 [PADRE] Esperando finalización de los procesos hijos con waitpid()...
 
 
