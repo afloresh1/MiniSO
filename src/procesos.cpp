@@ -7,6 +7,8 @@
 using namespace std;
 
 void moduloProcesos() {
+    system("clear");
+
     cout << "\n=========================================\n";
     cout << "     MÓDULO I: GESTIÓN DE PROCESOS      \n";
     cout << "=========================================\n";
