@@ -1,3 +1,8 @@
+// ============================================================================
+// Módulo I: Gestión de Procesos (POSIX system calls)
+// Funcionalidad: fork(), execvp(), waitpid(), getpid(), getppid()
+// ============================================================================
+
 #include "procesos.h"
 #include <iostream>
 #include <cstdlib>
