@@ -259,8 +259,94 @@ static void subMenuParticionamiento() {
 
 //FUNCIONES PARA EL SUBMODULO DE PAGINACION
 
+bool traducir_paginacion(int indice, long long direccion, ResultadoTraduccion& r) {
+    if (indice < 0 || indice >= MAX_PROCESOS_PAGINACION || !procesosPaginacion[indice].activo) return false;
+    ProcesoPaginado& p = procesosPaginacion[indice];
+    if (direccion < 0 || direccion >= p.tamano) return false;
+    int pagina = (int)(direccion / TAM_PAGINA), desplazamiento = (int)(direccion % TAM_PAGINA);
+    if (pagina >= p.num_paginas) return false;
+    int marco = p.tabla[pagina];
+    if (marco < 0 || marco >= NUM_MARCOS || procesoPorMarcoPaginacion[marco] != indice) return false;
+    r.pagina = pagina; r.desplazamiento = desplazamiento; r.marco = marco;
+    r.direccion_fisica = (long long)marco * TAM_PAGINA + desplazamiento;
+    return true;
+}
 
 
+
+
+
+void ejecutarEscenariosPaginacion() {
+    if (hayProcesosActivosPaginacion()) { cout << "[AVISO] Libere los procesos activos antes de ejecutar los escenarios.\n"; return; }
+    cout << "\n===== ESCENARIO 1: ASIGNACION Y FRAGMENTACION =====\n";
+    if (NUM_MARCOS >= 8) {
+        asignarProcesoPaginacion("A", 2LL * TAM_PAGINA + 1);
+        asignarProcesoPaginacion("B", (long long)TAM_PAGINA + 1);
+        asignarProcesoPaginacion("C", 2LL * TAM_PAGINA);
+        cout << "\nSe libera B para dejar marcos libres entre marcos ocupados.\n";
+        liberarProcesoPaginacion("B"); mostrarEstadoMarcosPaginacion();
+        cout << "\nSe asigna D; puede utilizar marcos no contiguos.\n";
+        asignarProcesoPaginacion("D", 2LL * TAM_PAGINA + 1); mostrarEstadoMarcosPaginacion();
+        liberarProcesoPaginacion("A"); liberarProcesoPaginacion("C"); liberarProcesoPaginacion("D");
+    } else cout << "Se necesitan al menos 8 marcos para este escenario.\n";
+    cout << "\n===== ESCENARIO 2: REUTILIZACION DE MARCOS =====\n";
+    if (NUM_MARCOS >= 3) {
+        asignarProcesoPaginacion("E", (long long)TAM_PAGINA + 1);
+        asignarProcesoPaginacion("F", TAM_PAGINA);
+        cout << "\nSe libera E y G reutiliza sus marcos.\n";
+        liberarProcesoPaginacion("E"); asignarProcesoPaginacion("G", (long long)TAM_PAGINA + 1);
+        mostrarEstadoMarcosPaginacion(); liberarProcesoPaginacion("F"); liberarProcesoPaginacion("G");
+    } else cout << "Se necesitan al menos 3 marcos para este escenario.\n";
+    cout << "\nFin de los escenarios.\n"; mostrarEstadoMarcosPaginacion();
+}
+
+
+
+static void subMenuPaginacion() {
+    cout << "\n--- CONFIGURACION DE PAGINACION ---\n";
+    TAM_PAGINA = (int)leerNumeroPaginacion("Tamano de pagina en bytes (1 a 1000000; sugerido 4096): ", 1, 1000000);
+    NUM_MARCOS = (int)leerNumeroPaginacion("Numero de marcos (1 a 1000; sugerido 12): ", 1, MAX_MARCOS_PAGINACION);
+    inicializarPaginacion();
+    cout << "\n[MODO SIMULACION] No se reserva RAM real ni se crean o modifican procesos/hilos de Linux.\n";
+    int opcion;
+    do {
+        cout << "\n===== SUBMODULO: PAGINACION =====\n";
+        cout << "Pagina: " << TAM_PAGINA << " bytes | Marcos: " << NUM_MARCOS << "\n";
+        cout << "1. Mostrar tablas de paginas\n2. Traducir direccion logica a fisica\n";
+        cout << "3. Crear proceso y asignar paginas\n4. Liberar proceso\n";
+        cout << "5. Mostrar estado de marcos\n6. Ejecutar escenarios automaticos\n0. Volver\nOpcion: ";
+        if (!(cin >> opcion)) { cout << "[ERROR] Ingrese una opcion numerica.\n"; limpiarEntradaPaginacion(); continue; }
+        switch (opcion) {
+            case 1: mostrarTablasPaginacion(); pausar(); break;
+            case 2: {
+                string nombre; cout << "Nombre del proceso: "; cin >> nombre;
+                int indice = buscarProcesoPaginacion(nombre);
+                if (indice == -1) cout << "[ERROR] Proceso inexistente o liberado.\n";
+                else {
+                    long long dir = leerNumeroPaginacion("Direccion logica en bytes: ", numeric_limits<long long>::min(), numeric_limits<long long>::max());
+                    ResultadoTraduccion r;
+                    if (traducir_paginacion(indice, dir, r)) {
+                        cout << "\n[TRADUCCION CORRECTA]\nDireccion logica: " << dir << " bytes\n";
+                        cout << "Pagina: " << r.pagina << " | Desplazamiento: " << r.desplazamiento << " bytes\n";
+                        cout << "Marco fisico: " << r.marco << "\nCalculo: (" << r.marco << " x " << TAM_PAGINA << ") + " << r.desplazamiento << "\n";
+                        cout << "Direccion fisica: " << r.direccion_fisica << " bytes\n";
+                    } else cout << "[ERROR] Direccion invalida. Rango valido: 0 a " << procesosPaginacion[indice].tamano - 1 << " bytes.\n";
+                }
+                pausar(); break;
+            }
+            case 3: {
+                string nombre; cout << "Nombre del proceso (sin espacios): "; cin >> nombre;
+                long long tamano = leerNumeroPaginacion("Tamano del proceso en bytes: ", 1, (long long)TAM_PAGINA * MAX_PAGINAS_PROCESO);
+                asignarProcesoPaginacion(nombre, tamano); pausar(); break;
+            }
+            case 4: { string nombre; cout << "Proceso a liberar: "; cin >> nombre; liberarProcesoPaginacion(nombre); pausar(); break; }
+            case 5: mostrarEstadoMarcosPaginacion(); pausar(); break;
+            case 6: ejecutarEscenariosPaginacion(); pausar(); break;
+            case 0: cout << "Regresando al menu de Gestion de Memoria...\n"; break;
+            default: cout << "[ERROR] Opcion no valida.\n"; pausar();
+        }
+    } while (opcion != 0);
+}
 
 void moduloMemoria() {
     int opcion;
