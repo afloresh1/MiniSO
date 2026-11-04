@@ -5,13 +5,15 @@
 #include <cstdlib>
 using namespace std;
 
-void limpiarPantalla() {
+
+void limpiaPantalla() {
 #ifdef _WIN32
     system("cls");  
 #else
     system("clear");
 #endif
 }
+
 
 
 void pausar() {
@@ -27,6 +29,9 @@ int CAPACIDAD;
 // Variables globales para la simulación de Paginación
 int TAM_PAGINA = 4096; // Tamaño por defecto: 4 KiB (4096 bytes)
 int NUM_MARCOS = 12;   // 12 marcos en memoria física simulada
+const int MAX_MARCOS_PAGINACION = 1000;
+const int MAX_PROCESOS_PAGINACION = 10;
+const int MAX_PAGINAS_PROCESO = 1000;
 
 
 
@@ -40,14 +45,20 @@ struct Ocupado {
 
 // Estructura para almacenar los resultados de la traducción lógica -> física
 struct ResultadoTraduccion {
-    int pagina;
-    int desplazamiento;
-    int marco;
-    int direccion_fisica;
+    int pagina, desplazamiento, marco;
+    long long direccion_fisica;
 };
 
+struct ProcesoPaginado {
+    string nombre;
+    long long tamano;
+    int num_paginas;
+    bool activo;
+    int tabla[MAX_PAGINAS_PROCESO];
+};
 
-
+ProcesoPaginado procesosPaginacion[MAX_PROCESOS_PAGINACION];
+int procesoPorMarcoPaginacion[MAX_MARCOS_PAGINACION]; // -1 = libre
 
 
 bool asignar_first_fit(Ocupado ocupados[], int n, string nombre, int tam) {
@@ -166,9 +177,9 @@ void mostrar_huecos(Ocupado ocupados[], int n) {
 static void subMenuParticionamiento() {
 
 
-    limpiarPantalla();
+    limpiaPantalla();
     cout << "\n--- CONFIGURACIÓN DE PARTICIONAMIENTO ---\n";
-    cout << "Ingrese la memoria total del sistema (ej. 512): ";
+    cout << "Ingrese la memoria total del sistema: ";
     cin >> CAPACIDAD;
 
     Ocupado ocupados[10];
@@ -190,7 +201,7 @@ static void subMenuParticionamiento() {
         cout << "Seleccione una opción: ";
         cin >> opcion;
 
-	limpiarPantalla();
+	limpiaPantalla();
 
         switch (opcion) {
             case 1: {
@@ -251,176 +262,10 @@ static void subMenuParticionamiento() {
 
 
 
-
-void ejecutar_escenario_paginacion(int id_escenario, string nombre, int tam_proceso, const int marcos[], int num_paginas) {
-    cout << "\n=======================================================\n";
-    cout << "  ESCENARIO " << id_escenario << ": Asignación y Fragmentación Interna\n";
-    cout << "=======================================================\n";
-    cout << "Proceso: " << nombre << " (" << tam_proceso << " bytes)\n";
-    cout << "Tamaño de página/marco: " << TAM_PAGINA << " bytes\n";
-    cout << "Páginas del proceso: " << num_paginas << "\n";
-    cout << "Tabla de páginas (Página lógica -> Marco físico):\n";
-    for (int i = 0; i < num_paginas; ++i) {
-        cout << "  Página " << i << " -> Marco " << marcos[i] << "\n";
-    }
-
-    int reservados = num_paginas * TAM_PAGINA;
-    int fragmentacion = reservados - tam_proceso;
-
-    cout << "Bytes cubiertos por " << num_paginas << " marcos: " << reservados << " bytes\n";
-    cout << "Fragmentación interna en la última página: " << fragmentacion << " bytes\n";
-}
-
-
-
-
-bool traducir_paginacion(int direccion, int tam_proceso, const int marcos[], ResultadoTraduccion &resultado) {
-    if (direccion < 0 || direccion >= tam_proceso) {
-        return false; // Dirección fuera del espacio de direcciones del proceso
-    }
-    resultado.pagina = direccion / TAM_PAGINA;
-    resultado.desplazamiento = direccion % TAM_PAGINA;
-    resultado.marco = marcos[resultado.pagina];
-    resultado.direccion_fisica = (resultado.marco * TAM_PAGINA) + resultado.desplazamiento;
-   return true;
-}
-
-
-
-static void subMenuPaginacion() {
-    limpiarPantalla();
-    cout << "--- CONFIGURACIÓN DE PAGINACIÓN ---\n";
-    cout << "Ingrese el tamaño de página en bytes (por defecto 4096): ";
-    while (!(cin >> TAM_PAGINA) || TAM_PAGINA <= 0) {
-        cout << "[ERROR] Ingrese un tamaño válido de página: ";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
-
-    cout << "Ingrese el número total de marcos físicos (ej. 12): ";
-    while (!(cin >> NUM_MARCOS) || NUM_MARCOS <= 0) {
-        cout << "[ERROR] Ingrese un número de marcos válido: ";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
-
-    // Configuración inicial predeterminada (Proceso A de 10240 bytes)
-    int tam_proceso = 10 * 1024;
-    int paginas = (tam_proceso + TAM_PAGINA - 1) / TAM_PAGINA;
-    int marcos[10] = {5, 2, 8}; // Asignación simulada
-    int num_marcos_asignados = paginas;
-
-    int opcion;
-    do {
-        limpiarPantalla();
-        cout << "=== SUBMÓDULO: PAGINACIÓN DE MEMORIA ===\n";
-        cout << "Tamaño de Página: " << TAM_PAGINA << " bytes | Marcos Totales: " << NUM_MARCOS << "\n";
-        cout << "Proceso actual cargado: " << tam_proceso << " bytes (" << paginas << " páginas)\n";
-        cout << "---------------------------------------------------------\n";
-        cout << "1. Mostrar Tabla de Páginas actual\n";
-        cout << "2. Traducir dirección lógica a física (Interactivo)\n";
-        cout << "3. Configurar un nuevo proceso (Asignación manual)\n";
-        cout << "4. Cargar simulación de Asignación y Liberación (Fragmentación)\n";
-        cout << "0. Volver al menú de Gestión de Memoria\n";
-        cout << "Seleccione una opción: ";
-
-        if (!(cin >> opcion)) {
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            continue;
-        }
-
-        switch (opcion) {
-            case 1: {
-                limpiarPantalla();
-                cout << "=== TABLA DE PÁGINAS DEL PROCESO ===\n";
-                for (int i = 0; i < num_marcos_asignados; ++i) {
-                    cout << "  Página " << i << " -> Marco " << marcos[i] << "\n";
-                }
-                int reservados = num_marcos_asignados * TAM_PAGINA;
-                cout << "\nBytes cubiertos: " << reservados << " bytes\n";
-                cout << "Fragmentación interna: " << (reservados - tam_proceso) << " bytes\n";
-                pausar();
-                break;
-            }
-            case 2: {
-                limpiarPantalla();
-                cout << "--- TRADUCCIÓN INTERACTIVA DE DIRECCIONES ---\n";
-                cout << "Espacio de direcciones válido: 0 a " << (tam_proceso - 1) << " bytes\n\n";
-                
-                int dir;
-                cout << "Ingrese la dirección lógica en bytes: ";
-                cin >> dir;
-
-                ResultadoTraduccion res;
-                if (traducir_paginacion(dir, tam_proceso, marcos, res)) {
-                    cout << "\n[ÉXITO EN TRADUCCIÓN]\n";
-                    cout << "  └─> Página Lógica: " << res.pagina << "\n";
-                    cout << "  └─> Desplazamiento (offset): " << res.desplazamiento << " bytes\n";
-                    cout << "  └─> Marco Físico Asignado: " << res.marco << "\n";
-                    cout << "  └─> Dirección Física Calculada: " << res.direccion_fisica << " bytes\n";
-                } else {
-                    cout << "\n[ERROR] Dirección lógica " << dir << " fuera del espacio asignado al proceso.\n";
-                }
-                pausar();
-                break;
-            }
-            case 3: {
-                limpiarPantalla();
-                cout << "--- CONFIGURAR NUEVO PROCESO ---\n";
-                cout << "Tamaño del nuevo proceso en bytes: ";
-                cin >> tam_proceso;
-
-                paginas = (tam_proceso + TAM_PAGINA - 1) / TAM_PAGINA;
-                num_marcos_asignados = paginas;
-
-                cout << "\nEl proceso requiere " << paginas << " páginas.\n";
-                cout << "Ingrese los " << paginas << " marcos asignados a cada página:\n";
-                for (int i = 0; i < paginas; ++i) {
-                    cout << "  Página " << i << " -> Marco físico: ";
-                    cin >> marcos[i];
-                }
-                cout << "\n[ÉXITO] Proceso cargado correctamente.\n";
-                pausar();
-                break;
-            }
-            case 4: {
-                limpiarPantalla();
-                cout << "--- EJECUTANDO EVIDENCIA DE ASIGNACIÓN, LIBERACIÓN Y FRAGMENTACIÓN ---\n";
-
-                // Escenario 1: Proceso A (10 KiB)
-                int tam_p1 = 10 * 1024;
-                int paginas_p1 = (tam_p1 + TAM_PAGINA - 1) / TAM_PAGINA;
-                int marcos_p1[] = {5, 2, 8};
-                ejecutar_escenario_paginacion(1, "Proceso A", tam_p1, marcos_p1, paginas_p1);
-
-                cout << "\n[ACCIÓN]: Finaliza Proceso A. Se liberan los marcos {5, 2, 8}.\n";
-
-                // Escenario 2: Proceso B (6 KiB) ocupando marcos liberados
-                int tam_p2 = 6 * 1024;
-                int paginas_p2 = (tam_p2 + TAM_PAGINA - 1) / TAM_PAGINA;
-                int marcos_p2[] = {8, 1}; // Reutiliza marcos
-                ejecutar_escenario_paginacion(2, "Proceso B", tam_p2, marcos_p2, paginas_p2);
-
-                pausar();
-                break;
-            }
-            case 0:
-                cout << "Regresando al menú de Memoria...\n";
-                break;
-            default:
-                cout << "Opción no válida.\n";
-                pausar();
-        }
-    } while (opcion != 0);
-}
-
-
-
 void moduloMemoria() {
     int opcion;
     do {
-	limpiarPantalla();
+	limpiaPantalla();
         cout << "\n=========================================\n";
         cout << "       GESTIÓN DE MEMORIA (MINISO)        \n";
         cout << "=========================================\n";
