@@ -2,6 +2,7 @@
 #define MEMORIA_H
 
 void moduloMemoria();
+void pausar();
 
 #endif
 
