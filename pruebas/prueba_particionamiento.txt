@@ -1,0 +1,66 @@
+                    ================================                  
+                                 MINISO                               
+                    ===============================                   
+1. Gestion de procesos
+2. Gestion de hilos y concurrencia
+3. Gestion de memoria
+0. Salir
+Seleccione una opcion: 
+=========================================
+       GESTIÓN DE MEMORIA (MINISO)        
+=========================================
+1. Particionamiento de memoria (First-Fit)
+2. Paginación
+0. Volver al menú principal
+Seleccione una opción: 
+--- CONFIGURACIÓN DE PARTICIONAMIENTO ---
+Ingrese la memoria total del sistema: 
+=== PARTICIONAMIENTO DE MEMORIA (FIRST-FIT) ===
+1. Solicitar espacio (Asignar Proceso)
+2. Liberar espacio (Eliminar Proceso)
+3. Mostrar estado de los bloques libres
+4. Cargar simulación automática (Escenarios 1 y 2)
+0. Volver al menú de Gestión de Memoria
+Seleccione una opción: 
+=== ESCENARIO 1: Fragmentacion Externa (Proceso Grande) ===
+Asignado A: [0, 100) MiB
+Asignado B: [100, 250) MiB
+Asignado C: [250, 350) MiB
+Asignado D: [350, 450) MiB
+Liberado B: [100, 250) MiB
+Liberado D: [350, 450) MiB
+Huecos libres actuales: [(100, 150), (350, 162)]
+Memoria libre total: 312 MiB
+
+NO asignado E: requiere 200 MiB contiguos
+  [ALERTA DE FRAGMENTACION EXTERNA]: Hay 312 MiB libres en total, pero no contiguos.
+
+=== ESCENARIO 2: Reutilizacion Exitosa de Espacios ===
+Asignado F: [100, 220) MiB
+Huecos libres actuales: [(220, 30), (350, 162)]
+Memoria libre total: 192 MiB
+
+
+=== PARTICIONAMIENTO DE MEMORIA (FIRST-FIT) ===
+1. Solicitar espacio (Asignar Proceso)
+2. Liberar espacio (Eliminar Proceso)
+3. Mostrar estado de los bloques libres
+4. Cargar simulación automática (Escenarios 1 y 2)
+0. Volver al menú de Gestión de Memoria
+Seleccione una opción: Regresando al menú de Memoria...
+
+=========================================
+       GESTIÓN DE MEMORIA (MINISO)        
+=========================================
+1. Particionamiento de memoria (First-Fit)
+2. Paginación
+0. Volver al menú principal
+Seleccione una opción: Saliendo del Módulo de Memoria...
+                    ================================                  
+                                 MINISO                               
+                    ===============================                   
+1. Gestion de procesos
+2. Gestion de hilos y concurrencia
+3. Gestion de memoria
+0. Salir
+Seleccione una opcion: Saliendo de MiniSO...

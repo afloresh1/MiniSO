@@ -1,0 +1,239 @@
+                    ================================                  
+                                 MINISO                               
+                    ===============================                   
+1. Gestion de procesos
+2. Gestion de hilos y concurrencia
+3. Gestion de memoria
+0. Salir
+Seleccione una opcion: [H[2J[3J
+=========================================
+       GESTIÓN DE MEMORIA (MINISO)        
+=========================================
+1. Particionamiento de memoria (First-Fit)
+2. Paginación
+0. Volver al menú principal
+Seleccione una opción: 
+--- CONFIGURACION DE PAGINACION ---
+Tamano de pagina en bytes (1 a 1000000; sugerido 4096): Numero de marcos (1 a 1000; sugerido 12): 
+[MODO SIMULACION] No se reserva RAM real ni se crean o modifican procesos/hilos de Linux.
+
+===== SUBMODULO: PAGINACION =====
+Pagina: 4096 bytes | Marcos: 12
+1. Mostrar tablas de paginas
+2. Traducir direccion logica a fisica
+3. Crear proceso y asignar paginas
+4. Liberar proceso
+5. Mostrar estado de marcos
+6. Ejecutar escenarios automaticos
+0. Volver
+Opcion: 
+===== ESCENARIO 1: ASIGNACION Y FRAGMENTACION =====
+
+[ASIGNACION SIMULADA CORRECTA] A ocupa 3 marcos.
+
+Proceso: A | Tamano: 8193 bytes
+Paginas: 3
+Pagina logica -> Marco fisico
+  0 -> 0
+  1 -> 1
+  2 -> 2
+Bytes reservados: 12288 | Usados en ultima pagina: 1 de 4096
+Fragmentacion interna: 4095 bytes
+
+[ASIGNACION SIMULADA CORRECTA] B ocupa 2 marcos.
+
+Proceso: B | Tamano: 4097 bytes
+Paginas: 2
+Pagina logica -> Marco fisico
+  0 -> 3
+  1 -> 4
+Bytes reservados: 8192 | Usados en ultima pagina: 1 de 4096
+Fragmentacion interna: 4095 bytes
+
+[ASIGNACION SIMULADA CORRECTA] C ocupa 2 marcos.
+
+Proceso: C | Tamano: 8192 bytes
+Paginas: 2
+Pagina logica -> Marco fisico
+  0 -> 5
+  1 -> 6
+Bytes reservados: 8192 | Usados en ultima pagina: 4096 de 4096
+Fragmentacion interna: 0 bytes
+
+Se libera B para dejar marcos libres entre marcos ocupados.
+
+[LIBERACION SIMULADA] Proceso B:
+Pagina 0 libera marco 3.
+Pagina 1 libera marco 4.
+Proceso liberado correctamente.
+
+========== ESTADO DE MARCOS FISICOS ==========
+Marco 0: OCUPADO por A (pagina 0)
+Marco 1: OCUPADO por A (pagina 1)
+Marco 2: OCUPADO por A (pagina 2)
+Marco 3: LIBRE
+Marco 4: LIBRE
+Marco 5: OCUPADO por C (pagina 0)
+Marco 6: OCUPADO por C (pagina 1)
+Marco 7: LIBRE
+Marco 8: LIBRE
+Marco 9: LIBRE
+Marco 10: LIBRE
+Marco 11: LIBRE
+Marcos ocupados: 5 de 12 | Libres: 7
+Capacidad fisica simulada: 49152 bytes
+
+Se asigna D; puede utilizar marcos no contiguos.
+
+[ASIGNACION SIMULADA CORRECTA] D ocupa 3 marcos.
+
+Proceso: D | Tamano: 8193 bytes
+Paginas: 3
+Pagina logica -> Marco fisico
+  0 -> 3
+  1 -> 4
+  2 -> 7
+Bytes reservados: 12288 | Usados en ultima pagina: 1 de 4096
+Fragmentacion interna: 4095 bytes
+
+========== ESTADO DE MARCOS FISICOS ==========
+Marco 0: OCUPADO por A (pagina 0)
+Marco 1: OCUPADO por A (pagina 1)
+Marco 2: OCUPADO por A (pagina 2)
+Marco 3: OCUPADO por D (pagina 0)
+Marco 4: OCUPADO por D (pagina 1)
+Marco 5: OCUPADO por C (pagina 0)
+Marco 6: OCUPADO por C (pagina 1)
+Marco 7: OCUPADO por D (pagina 2)
+Marco 8: LIBRE
+Marco 9: LIBRE
+Marco 10: LIBRE
+Marco 11: LIBRE
+Marcos ocupados: 8 de 12 | Libres: 4
+Capacidad fisica simulada: 49152 bytes
+
+[LIBERACION SIMULADA] Proceso A:
+Pagina 0 libera marco 0.
+Pagina 1 libera marco 1.
+Pagina 2 libera marco 2.
+Proceso liberado correctamente.
+
+[LIBERACION SIMULADA] Proceso C:
+Pagina 0 libera marco 5.
+Pagina 1 libera marco 6.
+Proceso liberado correctamente.
+
+[LIBERACION SIMULADA] Proceso D:
+Pagina 0 libera marco 3.
+Pagina 1 libera marco 4.
+Pagina 2 libera marco 7.
+Proceso liberado correctamente.
+
+===== ESCENARIO 2: REUTILIZACION DE MARCOS =====
+
+[ASIGNACION SIMULADA CORRECTA] E ocupa 2 marcos.
+
+Proceso: E | Tamano: 4097 bytes
+Paginas: 2
+Pagina logica -> Marco fisico
+  0 -> 0
+  1 -> 1
+Bytes reservados: 8192 | Usados en ultima pagina: 1 de 4096
+Fragmentacion interna: 4095 bytes
+
+[ASIGNACION SIMULADA CORRECTA] F ocupa 1 marcos.
+
+Proceso: F | Tamano: 4096 bytes
+Paginas: 1
+Pagina logica -> Marco fisico
+  0 -> 2
+Bytes reservados: 4096 | Usados en ultima pagina: 4096 de 4096
+Fragmentacion interna: 0 bytes
+
+Se libera E y G reutiliza sus marcos.
+
+[LIBERACION SIMULADA] Proceso E:
+Pagina 0 libera marco 0.
+Pagina 1 libera marco 1.
+Proceso liberado correctamente.
+
+[ASIGNACION SIMULADA CORRECTA] G ocupa 2 marcos.
+
+Proceso: G | Tamano: 4097 bytes
+Paginas: 2
+Pagina logica -> Marco fisico
+  0 -> 0
+  1 -> 1
+Bytes reservados: 8192 | Usados en ultima pagina: 1 de 4096
+Fragmentacion interna: 4095 bytes
+
+========== ESTADO DE MARCOS FISICOS ==========
+Marco 0: OCUPADO por G (pagina 0)
+Marco 1: OCUPADO por G (pagina 1)
+Marco 2: OCUPADO por F (pagina 0)
+Marco 3: LIBRE
+Marco 4: LIBRE
+Marco 5: LIBRE
+Marco 6: LIBRE
+Marco 7: LIBRE
+Marco 8: LIBRE
+Marco 9: LIBRE
+Marco 10: LIBRE
+Marco 11: LIBRE
+Marcos ocupados: 3 de 12 | Libres: 9
+Capacidad fisica simulada: 49152 bytes
+
+[LIBERACION SIMULADA] Proceso F:
+Pagina 0 libera marco 2.
+Proceso liberado correctamente.
+
+[LIBERACION SIMULADA] Proceso G:
+Pagina 0 libera marco 0.
+Pagina 1 libera marco 1.
+Proceso liberado correctamente.
+
+Fin de los escenarios.
+
+========== ESTADO DE MARCOS FISICOS ==========
+Marco 0: LIBRE
+Marco 1: LIBRE
+Marco 2: LIBRE
+Marco 3: LIBRE
+Marco 4: LIBRE
+Marco 5: LIBRE
+Marco 6: LIBRE
+Marco 7: LIBRE
+Marco 8: LIBRE
+Marco 9: LIBRE
+Marco 10: LIBRE
+Marco 11: LIBRE
+Marcos ocupados: 0 de 12 | Libres: 12
+Capacidad fisica simulada: 49152 bytes
+
+Presione ENTER para continuar...
+===== SUBMODULO: PAGINACION =====
+Pagina: 4096 bytes | Marcos: 12
+1. Mostrar tablas de paginas
+2. Traducir direccion logica a fisica
+3. Crear proceso y asignar paginas
+4. Liberar proceso
+5. Mostrar estado de marcos
+6. Ejecutar escenarios automaticos
+0. Volver
+Opcion: [H[2J[3JRegresando al menu de Gestion de Memoria...
+
+=========================================
+       GESTIÓN DE MEMORIA (MINISO)        
+=========================================
+1. Particionamiento de memoria (First-Fit)
+2. Paginación
+0. Volver al menú principal
+Seleccione una opción: Saliendo del Módulo de Memoria...
+                    ================================                  
+                                 MINISO                               
+                    ===============================                   
+1. Gestion de procesos
+2. Gestion de hilos y concurrencia
+3. Gestion de memoria
+0. Salir
+Seleccione una opcion: Saliendo de MiniSO...

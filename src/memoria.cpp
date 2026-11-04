@@ -7,6 +7,7 @@ using namespace std;
 
 
 void limpiaPantalla() {
+  if (getenv("NO_LIMPIAR") != NULL) return;
 #ifdef _WIN32
     system("cls");  
 #else
@@ -259,6 +260,144 @@ static void subMenuParticionamiento() {
 
 //FUNCIONES PARA EL SUBMODULO DE PAGINACION
 
+
+void limpiarEntradaPaginacion() {
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
+
+long long leerNumeroPaginacion(const string& mensaje, long long minimo, long long maximo) {
+    long long valor;
+    while (true) {
+        cout << mensaje;
+        if (cin >> valor && valor >= minimo && valor <= maximo) return valor;
+        cout << "[ERROR] Ingrese un numero entre " << minimo << " y " << maximo << ".\n";
+        limpiarEntradaPaginacion();
+    }
+}
+
+void inicializarPaginacion() {
+    for (int i = 0; i < MAX_MARCOS_PAGINACION; ++i) procesoPorMarcoPaginacion[i] = -1;
+    for (int i = 0; i < MAX_PROCESOS_PAGINACION; ++i) {
+        procesosPaginacion[i].nombre = "";
+        procesosPaginacion[i].tamano = 0;
+        procesosPaginacion[i].num_paginas = 0;
+        procesosPaginacion[i].activo = false;
+    }
+}
+
+int buscarProcesoPaginacion(const string& nombre) {
+    for (int i = 0; i < MAX_PROCESOS_PAGINACION; ++i)
+        if (procesosPaginacion[i].activo && procesosPaginacion[i].nombre == nombre) return i;
+    return -1;
+}
+
+int buscarEspacioProcesoPaginacion() {
+    for (int i = 0; i < MAX_PROCESOS_PAGINACION; ++i)
+        if (!procesosPaginacion[i].activo) return i;
+    return -1;
+}
+
+int contarMarcosLibresPaginacion() {
+    int libres = 0;
+    for (int i = 0; i < NUM_MARCOS; ++i)
+        if (procesoPorMarcoPaginacion[i] == -1) ++libres;
+    return libres;
+}
+
+bool hayProcesosActivosPaginacion() {
+    for (int i = 0; i < MAX_PROCESOS_PAGINACION; ++i)
+        if (procesosPaginacion[i].activo) return true;
+    return false;
+}
+
+void mostrarProcesoPaginacion(int indice) {
+    if (indice < 0 || indice >= MAX_PROCESOS_PAGINACION || !procesosPaginacion[indice].activo) return;
+    ProcesoPaginado& p = procesosPaginacion[indice];
+    long long reservados = (long long)p.num_paginas * TAM_PAGINA;
+    long long usadosUltima = p.tamano - (long long)(p.num_paginas - 1) * TAM_PAGINA;
+    cout << "\nProceso: " << p.nombre << " | Tamano: " << p.tamano << " bytes\n";
+    cout << "Paginas: " << p.num_paginas << "\nPagina logica -> Marco fisico\n";
+    for (int i = 0; i < p.num_paginas; ++i) cout << "  " << i << " -> " << p.tabla[i] << "\n";
+    cout << "Bytes reservados: " << reservados << " | Usados en ultima pagina: "
+         << usadosUltima << " de " << TAM_PAGINA << "\n";
+    cout << "Fragmentacion interna: " << reservados - p.tamano << " bytes\n";
+}
+
+void mostrarTablasPaginacion() {
+    bool hayProcesos = false;
+    cout << "\n========== TABLAS DE PAGINAS ==========\n";
+    for (int i = 0; i < MAX_PROCESOS_PAGINACION; ++i)
+        if (procesosPaginacion[i].activo) { mostrarProcesoPaginacion(i); hayProcesos = true; }
+    if (!hayProcesos) cout << "No hay procesos asignados.\n";
+}
+
+bool asignarProcesoPaginacion(const string& nombre, long long tamano) {
+    if (nombre.empty() || tamano <= 0) { cout << "[ERROR] Nombre o tamano no valido.\n"; return false; }
+    if (buscarProcesoPaginacion(nombre) != -1) { cout << "[ERROR] Ya existe ese proceso.\n"; return false; }
+    long long paginas = (tamano + TAM_PAGINA - 1) / TAM_PAGINA;
+    if (paginas > MAX_PAGINAS_PROCESO) { cout << "[ERROR] Supera el limite de paginas por proceso.\n"; return false; }
+    if (paginas > NUM_MARCOS || paginas > contarMarcosLibresPaginacion()) {
+        cout << "[ERROR] Marcos insuficientes. Necesita " << paginas << " y hay "
+             << contarMarcosLibresPaginacion() << " libres.\n";
+        return false;
+    }
+    int indice = buscarEspacioProcesoPaginacion();
+    if (indice == -1) { cout << "[ERROR] Se alcanzo el limite de procesos.\n"; return false; }
+    ProcesoPaginado& p = procesosPaginacion[indice];
+    p.nombre = nombre; p.tamano = tamano; p.num_paginas = (int)paginas; p.activo = true;
+    for (int i = 0; i < p.num_paginas; ++i) p.tabla[i] = -1;
+    int pagina = 0;
+    for (int marco = 0; marco < NUM_MARCOS && pagina < p.num_paginas; ++marco) {
+        if (procesoPorMarcoPaginacion[marco] == -1) {
+            p.tabla[pagina++] = marco;
+            procesoPorMarcoPaginacion[marco] = indice;
+        }
+    }
+    cout << "\n[ASIGNACION SIMULADA CORRECTA] " << nombre << " ocupa " << paginas << " marcos.\n";
+    mostrarProcesoPaginacion(indice);
+    return true;
+}
+
+bool liberarProcesoPaginacion(const string& nombre) {
+    int indice = buscarProcesoPaginacion(nombre);
+    if (indice == -1) { cout << "[ERROR] Proceso inexistente o ya liberado.\n"; return false; }
+    ProcesoPaginado& p = procesosPaginacion[indice];
+    cout << "\n[LIBERACION SIMULADA] Proceso " << p.nombre << ":\n";
+    for (int i = 0; i < p.num_paginas; ++i) {
+        int marco = p.tabla[i];
+        if (marco >= 0 && marco < NUM_MARCOS && procesoPorMarcoPaginacion[marco] == indice) {
+            cout << "Pagina " << i << " libera marco " << marco << ".\n";
+            procesoPorMarcoPaginacion[marco] = -1;
+        }
+        p.tabla[i] = -1;
+    }
+    p.nombre = ""; p.tamano = 0; p.num_paginas = 0; p.activo = false;
+    cout << "Proceso liberado correctamente.\n";
+    return true;
+}
+
+void mostrarEstadoMarcosPaginacion() {
+    int ocupados = 0;
+    cout << "\n========== ESTADO DE MARCOS FISICOS ==========\n";
+    for (int marco = 0; marco < NUM_MARCOS; ++marco) {
+        int indice = procesoPorMarcoPaginacion[marco];
+        cout << "Marco " << marco << ": ";
+        if (indice == -1) cout << "LIBRE\n";
+        else if (indice >= 0 && indice < MAX_PROCESOS_PAGINACION && procesosPaginacion[indice].activo) {
+            ++ocupados;
+            int pagina = -1;
+            for (int i = 0; i < procesosPaginacion[indice].num_paginas; ++i)
+                if (procesosPaginacion[indice].tabla[i] == marco) { pagina = i; break; }
+            cout << "OCUPADO por " << procesosPaginacion[indice].nombre << " (pagina " << pagina << ")\n";
+        } else cout << "[ERROR: registro inconsistente]\n";
+    }
+    cout << "Marcos ocupados: " << ocupados << " de " << NUM_MARCOS
+         << " | Libres: " << NUM_MARCOS - ocupados << "\n";
+    cout << "Capacidad fisica simulada: " << (long long)NUM_MARCOS * TAM_PAGINA << " bytes\n";
+}
+
+
 bool traducir_paginacion(int indice, long long direccion, ResultadoTraduccion& r) {
     if (indice < 0 || indice >= MAX_PROCESOS_PAGINACION || !procesosPaginacion[indice].activo) return false;
     ProcesoPaginado& p = procesosPaginacion[indice];
@@ -273,12 +412,13 @@ bool traducir_paginacion(int indice, long long direccion, ResultadoTraduccion& r
 }
 
 
-
-
-
 void ejecutarEscenariosPaginacion() {
-    if (hayProcesosActivosPaginacion()) { cout << "[AVISO] Libere los procesos activos antes de ejecutar los escenarios.\n"; return; }
+    if (hayProcesosActivosPaginacion()) { 
+	cout << "[AVISO] Libere los procesos activos antes de ejecutar los escenarios.\n"; 
+	return; 
+    }
     cout << "\n===== ESCENARIO 1: ASIGNACION Y FRAGMENTACION =====\n";
+
     if (NUM_MARCOS >= 8) {
         asignarProcesoPaginacion("A", 2LL * TAM_PAGINA + 1);
         asignarProcesoPaginacion("B", (long long)TAM_PAGINA + 1);

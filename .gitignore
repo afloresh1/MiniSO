@@ -1,0 +1,16 @@
+# Ejecutables
+miniSO
+main
+*.out
+main.exe
+
+# Archivos temporales
+*.o
+*.tmp
+
+# Configuracion personal del editor
+.vscode/
+.idea/
+
+# Archivos del sistema
+.DS_Store
