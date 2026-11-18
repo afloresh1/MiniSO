@@ -123,3 +123,6 @@ Para finalizar MiniSO, seleccionar la opción `0` del menú principal.
 ## 5. Videos de Demostración
 Alexandra Valeria Choque Onofre 2024-119044
 https://youtu.be/Hfq0K5WfCJk?feature=shared
+
+Alison Khiara Flores Hallasi
+https://youtu.be/dQCkS_Ssc8o
