@@ -126,3 +126,6 @@ https://youtu.be/Hfq0K5WfCJk?feature=shared
 
 Alison Khiara Flores Hallasi
 https://youtu.be/dQCkS_Ssc8o
+
+Patricia Mireya Aduvire Huanca
+https://youtu.be/DzSk7_89XRI
